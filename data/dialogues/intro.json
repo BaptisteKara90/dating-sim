@@ -1,0 +1,17 @@
+[
+  {
+    "id": "intro_01",
+    "speaker": "Narrateur",
+    "text": "Londres, 1889. La pluie frappe les vitres du manoir Blackwood."
+  },
+  {
+    "id": "intro_02",
+    "speaker": "Lady Eleanor",
+    "text": "Vous êtes enfin arrivé. Je commençais à croire que vous aviez changé d'avis."
+  },
+  {
+    "id": "intro_03",
+    "speaker": "Vous",
+    "text": "Je n'aurais manqué cette invitation pour rien au monde."
+  }
+]
