@@ -4,28 +4,21 @@ extends Control
 @onready var text_label: Label = $UI/DialogueBox/MarginContainer/VBoxContainer/TextLabel
 @onready var continue_button: Button = $UI/DialogueBox/MarginContainer/VBoxContainer/ContinueButton
 
-var dialogues: Array = []
-var current_index: int = 0
+func _ready() -> void:
+	DialogueManager.line_changed.connect(_on_dialogue_line_changed)
+	DialogueManager.dialogue_finished.connect(_on_dialogue_finished)
 
-func _ready():
-	load_dialogues("res://data/dialogues/intro.json")
-	show_dialogue()
+	DialogueManager.start("intro")
 
-func load_dialogues(path: String):
-	var file = FileAccess.open(path, FileAccess.READ)
-	var content = file.get_as_text()
-	dialogues = JSON.parse_string(content)
+func _on_dialogue_line_changed(line: Dictionary) -> void:
+	speaker_label.text = line.get("speaker", "")
+	text_label.text = line.get("text", "")
+	continue_button.disabled = false
 
-func show_dialogue():
-	if current_index >= dialogues.size():
-		text_label.text = "Fin de la scène."
-		continue_button.disabled = true
-		return
+func _on_dialogue_finished() -> void:
+	speaker_label.text = ""
+	text_label.text = "Fin de la scène."
+	continue_button.disabled = true
 
-	var line = dialogues[current_index]
-	speaker_label.text = line["speaker"]
-	text_label.text = line["text"]
-
-func _on_continue_button_pressed():
-	current_index += 1
-	show_dialogue()
+func _on_continue_button_pressed() -> void:
+	DialogueManager.next()
