@@ -64,4 +64,7 @@ layout_mode = 2
 size_flags_horizontal = 4
 text = "Continuer"
 
+[node name="ChoicesContainer" type="VBoxContainer" parent="UI/DialogueBox/MarginContainer/VBoxContainer" unique_id=2072187067]
+layout_mode = 2
+
 [connection signal="pressed" from="UI/DialogueBox/MarginContainer/VBoxContainer/ContinueButton" to="." method="_on_continue_button_pressed"]

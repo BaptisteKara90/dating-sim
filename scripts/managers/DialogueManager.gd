@@ -1,23 +1,31 @@
 extends Node
 
 signal line_changed(line: Dictionary)
+signal choices_changed(choices: Array)
 signal dialogue_finished
 
 var dialogue_data: Array = []
-var current_index: int = 0
+var dialogue_by_id: Dictionary = {}
+var current_line_id: String = ""
 var is_running: bool = false
 
-func start(dialogue_name: String) -> void:
+func start(dialogue_name: String, start_id: String = "") -> void:
 	var path := "res://data/dialogues/%s.json" % dialogue_name
 
 	dialogue_data = _load_dialogue_file(path)
-	current_index = 0
-	is_running = true
+	dialogue_by_id = _build_dialogue_index(dialogue_data)
 
 	if dialogue_data.is_empty():
 		push_error("Dialogue is empty: " + dialogue_name)
 		dialogue_finished.emit()
 		return
+
+	is_running = true
+
+	if start_id != "":
+		current_line_id = start_id
+	else:
+		current_line_id = dialogue_data[0].get("id", "")
 
 	_emit_current_line()
 
@@ -25,38 +33,84 @@ func next() -> void:
 	if not is_running:
 		return
 
-	current_index += 1
+	var line := get_current_line()
 
-	if current_index >= dialogue_data.size():
-		is_running = false
-		dialogue_finished.emit()
+	if line.has("choices"):
 		return
 
-	_emit_current_line()
+	var next_id: String = str(line.get("next", ""))
 
-func stop() -> void:
-	is_running = false
-	dialogue_data = []
-	current_index = 0
-	dialogue_finished.emit()
+	if next_id == "":
+		_finish_dialogue()
+		return
+
+	go_to(next_id)
+
+func choose(choice_index: int) -> void:
+	if not is_running:
+		return
+
+	var line := get_current_line()
+	var choices: Array = line.get("choices", [])
+
+	if choice_index < 0 or choice_index >= choices.size():
+		return
+
+	var choice: Dictionary = choices[choice_index]
+	var next_id: String = str(choice.get("next", ""))
+
+	if next_id == "":
+		_finish_dialogue()
+		return
+
+	go_to(next_id)
+
+func go_to(line_id: String) -> void:
+	if not dialogue_by_id.has(line_id):
+		push_error("Dialogue id not found: " + line_id)
+		_finish_dialogue()
+		return
+
+	current_line_id = line_id
+	_emit_current_line()
 
 func get_current_line() -> Dictionary:
 	if not is_running:
 		return {}
 
-	if current_index < 0 or current_index >= dialogue_data.size():
-		return {}
-
-	return dialogue_data[current_index]
+	return dialogue_by_id.get(current_line_id, {})
 
 func _emit_current_line() -> void:
 	var line := get_current_line()
 
 	if line.is_empty():
-		dialogue_finished.emit()
+		_finish_dialogue()
 		return
 
 	line_changed.emit(line)
+
+	if line.has("choices"):
+		choices_changed.emit(line["choices"])
+	else:
+		choices_changed.emit([])
+
+func _finish_dialogue() -> void:
+	is_running = false
+	current_line_id = ""
+	dialogue_finished.emit()
+	choices_changed.emit([])
+
+func _build_dialogue_index(data: Array) -> Dictionary:
+	var index := {}
+
+	for line in data:
+		if not line.has("id"):
+			push_error("Dialogue line missing id")
+			continue
+
+		index[line["id"]] = line
+
+	return index
 
 func _load_dialogue_file(path: String) -> Array:
 	if not FileAccess.file_exists(path):
