@@ -1,23 +1,24 @@
 extends Node
 
-signal line_changed(line: Dictionary)
+const DialogueLoaderScript = preload("res://scripts/loaders/DialogueLoader.gd")
+const DialogueLine = preload("res://scripts/models/DialogueLine.gd")
+const DialogueChoice = preload("res://scripts/models/DialogueChoice.gd")
+
+signal line_changed(line)
 signal choices_changed(choices: Array)
 signal dialogue_finished
 
-var dialogue_data: Array = []
-var dialogue_by_id: Dictionary = {}
+var current_dialogue = null
 var current_line_id: String = ""
 var is_running: bool = false
 
 func start(dialogue_name: String, start_id: String = "") -> void:
-	var path := "res://data/dialogues/%s.json" % dialogue_name
+	var loader := DialogueLoaderScript.new()
+	current_dialogue = loader.load_dialogue(dialogue_name)
 
-	dialogue_data = _load_dialogue_file(path)
-	dialogue_by_id = _build_dialogue_index(dialogue_data)
-
-	if dialogue_data.is_empty():
+	if current_dialogue == null or current_dialogue.is_empty():
 		push_error("Dialogue is empty: " + dialogue_name)
-		dialogue_finished.emit()
+		_finish_dialogue()
 		return
 
 	is_running = true
@@ -25,7 +26,7 @@ func start(dialogue_name: String, start_id: String = "") -> void:
 	if start_id != "":
 		current_line_id = start_id
 	else:
-		current_line_id = dialogue_data[0].get("id", "")
+		current_line_id = current_dialogue.first_line_id
 
 	_emit_current_line()
 
@@ -33,40 +34,43 @@ func next() -> void:
 	if not is_running:
 		return
 
-	var line := get_current_line()
+	var line: DialogueLine = get_current_line()
 
-	if line.has("choices"):
-		return
-
-	var next_id: String = str(line.get("next", ""))
-
-	if next_id == "":
+	if line == null:
 		_finish_dialogue()
 		return
 
-	go_to(next_id)
+	if line.has_choices():
+		return
+
+	if line.next_id == "":
+		_finish_dialogue()
+		return
+
+	go_to(line.next_id)
 
 func choose(choice_index: int) -> void:
 	if not is_running:
 		return
 
-	var line := get_current_line()
-	var choices: Array = line.get("choices", [])
+	var line: DialogueLine = get_current_line()
 
-	if choice_index < 0 or choice_index >= choices.size():
+	if line == null or not line.has_choices():
 		return
 
-	var choice: Dictionary = choices[choice_index]
-	var next_id: String = str(choice.get("next", ""))
+	if choice_index < 0 or choice_index >= line.choices.size():
+		return
 
-	if next_id == "":
+	var choice: DialogueChoice = line.choices[choice_index]
+
+	if choice.next_id == "":
 		_finish_dialogue()
 		return
 
-	go_to(next_id)
+	go_to(choice.next_id)
 
 func go_to(line_id: String) -> void:
-	if not dialogue_by_id.has(line_id):
+	if current_dialogue == null or not current_dialogue.has_line(line_id):
 		push_error("Dialogue id not found: " + line_id)
 		_finish_dialogue()
 		return
@@ -74,59 +78,25 @@ func go_to(line_id: String) -> void:
 	current_line_id = line_id
 	_emit_current_line()
 
-func get_current_line() -> Dictionary:
-	if not is_running:
-		return {}
+func get_current_line() -> DialogueLine:
+	if not is_running or current_dialogue == null:
+		return null
 
-	return dialogue_by_id.get(current_line_id, {})
+	return current_dialogue.get_line(current_line_id)
 
 func _emit_current_line() -> void:
-	var line := get_current_line()
+	var line: DialogueLine = get_current_line()
 
-	if line.is_empty():
+	if line == null:
 		_finish_dialogue()
 		return
 
 	line_changed.emit(line)
-
-	if line.has("choices"):
-		choices_changed.emit(line["choices"])
-	else:
-		choices_changed.emit([])
+	choices_changed.emit(line.choices)
 
 func _finish_dialogue() -> void:
 	is_running = false
 	current_line_id = ""
-	dialogue_finished.emit()
+	current_dialogue = null
 	choices_changed.emit([])
-
-func _build_dialogue_index(data: Array) -> Dictionary:
-	var index := {}
-
-	for line in data:
-		if not line.has("id"):
-			push_error("Dialogue line missing id")
-			continue
-
-		index[line["id"]] = line
-
-	return index
-
-func _load_dialogue_file(path: String) -> Array:
-	if not FileAccess.file_exists(path):
-		push_error("Dialogue file not found: " + path)
-		return []
-
-	var file := FileAccess.open(path, FileAccess.READ)
-	var content := file.get_as_text()
-	var parsed = JSON.parse_string(content)
-
-	if parsed == null:
-		push_error("Invalid JSON: " + path)
-		return []
-
-	if typeof(parsed) != TYPE_ARRAY:
-		push_error("Dialogue JSON must be an Array: " + path)
-		return []
-
-	return parsed
+	dialogue_finished.emit()

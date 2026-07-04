@@ -12,9 +12,9 @@ func _ready() -> void:
 
 	DialogueManager.start("intro")
 
-func _on_dialogue_line_changed(line: Dictionary) -> void:
-	speaker_label.text = line.get("speaker", "")
-	text_label.text = line.get("text", "")
+func _on_dialogue_line_changed(line) -> void:
+	speaker_label.text = line.speaker
+	text_label.text = line.text
 	continue_button.disabled = false
 
 func _on_choices_changed(choices: Array) -> void:
@@ -25,7 +25,7 @@ func _on_choices_changed(choices: Array) -> void:
 
 	for i in range(choices.size()):
 		var button := Button.new()
-		button.text = choices[i].get("text", "")
+		button.text = choices[i].text
 		button.pressed.connect(func(): DialogueManager.choose(i))
 		choices_container.add_child(button)
 
