@@ -4,4 +4,4 @@ func _ready():
 	print("Bonjour Godot !")
 
 func _on_button_pressed():
-	print("Nouvelle Partie !")
+	get_tree().change_scene_to_file("res://scenes/game/Game.tscn")

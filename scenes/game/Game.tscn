@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://be4vtk61p68rq"]
+
+[node name="Control" type="Control" unique_id=41116574]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Label" type="Label" parent="." unique_id=146367504]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+text = "Bienvenue au Manoir Blackwood"
