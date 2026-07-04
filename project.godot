@@ -15,5 +15,6 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="Test Dating Sim"
+run/main_scene="uid://bsk46r0jhr468"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
