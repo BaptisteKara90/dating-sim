@@ -12,22 +12,22 @@
 	"choices": [
 	  {
 		"text": "Je n'aurais manqué cette invitation pour rien au monde.",
-		"next": "intro_polite"
+		"next": "intro_02.1"
 	  },
 	  {
 		"text": "J'ai hésité, je l'avoue.",
-		"next": "intro_honest"
+		"next": "intro_02.2"
 	  }
 	]
   },
   {
-	"id": "intro_polite",
+	"id": "intro_02.1",
 	"speaker": "Lady Eleanor",
 	"text": "Voilà une réponse fort élégante.",
 	"next": "intro_end"
   },
   {
-	"id": "intro_honest",
+	"id": "intro_02.2",
 	"speaker": "Lady Eleanor",
 	"text": "L'honnêteté est rare dans cette maison. Je l'apprécie.",
 	"next": "intro_end"
