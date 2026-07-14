@@ -1,40 +1,40 @@
 [
   {
-    "id": "intro_01",
-    "speaker": "Narrateur",
-    "text": "Londres, 1889. La pluie frappe les vitres du manoir Blackwood.",
-    "next": "intro_02"
+	"id": "intro_01",
+	"speaker": "Narrateur",
+	"text": "Londres, 1889. La pluie frappe les vitres du manoir Blackwood.",
+	"next": "intro_02"
   },
   {
-    "id": "intro_02",
-    "speaker": "Lady Eleanor",
-    "text": "Vous êtes enfin arrivé. Je commençais à croire que vous aviez changé d'avis.",
-    "choices": [
-      {
-        "text": "Je n'aurais manqué cette invitation pour rien au monde.",
-        "next": "intro_polite"
-      },
-      {
-        "text": "J'ai hésité, je l'avoue.",
-        "next": "intro_honest"
-      }
-    ]
+	"id": "intro_02",
+	"speaker": "Lady Eleanor",
+	"text": "Vous êtes enfin arrivé. Je commençais à croire que vous aviez changé d'avis.",
+	"choices": [
+	  {
+		"text": "Je n'aurais manqué cette invitation pour rien au monde.",
+		"next": "intro_polite"
+	  },
+	  {
+		"text": "J'ai hésité, je l'avoue.",
+		"next": "intro_honest"
+	  }
+	]
   },
   {
-    "id": "intro_polite",
-    "speaker": "Lady Eleanor",
-    "text": "Voilà une réponse fort élégante.",
-    "next": "intro_end"
+	"id": "intro_polite",
+	"speaker": "Lady Eleanor",
+	"text": "Voilà une réponse fort élégante.",
+	"next": "intro_end"
   },
   {
-    "id": "intro_honest",
-    "speaker": "Lady Eleanor",
-    "text": "L'honnêteté est rare dans cette maison. Je l'apprécie.",
-    "next": "intro_end"
+	"id": "intro_honest",
+	"speaker": "Lady Eleanor",
+	"text": "L'honnêteté est rare dans cette maison. Je l'apprécie.",
+	"next": "intro_end"
   },
   {
-    "id": "intro_end",
-    "speaker": "Narrateur",
-    "text": "La soirée ne fait que commencer."
+	"id": "intro_end",
+	"speaker": "Narrateur",
+	"text": "La soirée ne fait que commencer."
   }
 ]
