@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://sapyt71h5ere"]
+
+[ext_resource type="Script" uid="uid://c1i6s22qgpunm" path="res://tools/dialogue_editor/components/ChoiceRow.gd" id="1_jupeh"]
+
+[node name="ChoiceRow" type="HBoxContainer" unique_id=2073605275]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_jupeh")
+
+[node name="ChoiceTextInput" type="LineEdit" parent="." unique_id=153108325]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Choix du texte"
+
+[node name="RemoveButton" type="Button" parent="." unique_id=1757870551]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Supprimer"

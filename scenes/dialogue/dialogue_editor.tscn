@@ -35,11 +35,6 @@ unique_name_in_owner = true
 layout_mode = 2
 placeholder_text = "Nom du dialogue (ex. Intro)"
 
-[node name="LineIdInput" type="LineEdit" parent="MarginContainer/VBoxContainer" unique_id=1023816209]
-unique_name_in_owner = true
-layout_mode = 2
-placeholder_text = "ID de ligne, ex. intro_01"
-
 [node name="CharacterSelect" type="OptionButton" parent="MarginContainer/VBoxContainer" unique_id=1157132814]
 unique_name_in_owner = true
 layout_mode = 2
@@ -53,11 +48,6 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 placeholder_text = "Texte du dialogue"
-
-[node name="NextIdInput" type="LineEdit" parent="MarginContainer/VBoxContainer" unique_id=677532920]
-unique_name_in_owner = true
-layout_mode = 2
-placeholder_text = "ID suivant, ex. intro_02"
 
 [node name="HasChoicesCheckBox" type="CheckBox" parent="MarginContainer/VBoxContainer" unique_id=1088302312]
 unique_name_in_owner = true
