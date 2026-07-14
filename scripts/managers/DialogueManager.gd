@@ -1,8 +1,6 @@
 extends Node
 
 const DialogueLoaderScript = preload("res://scripts/loaders/DialogueLoader.gd")
-const DialogueLine = preload("res://scripts/models/DialogueLine.gd")
-const DialogueChoice = preload("res://scripts/models/DialogueChoice.gd")
 
 signal line_changed(line)
 signal choices_changed(choices: Array)
