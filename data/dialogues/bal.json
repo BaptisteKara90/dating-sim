@@ -1,0 +1,25 @@
+[
+	{
+		"id": "bal_01",
+		"speaker": "lord_ashford",
+		"text": "Bonjour Mademoiselle, je ne vous ai jamais vu ici, non ? Je me présente, je suis Lord Ashford premier du nom",
+		"emotion": "neutral",
+		"next": "bal_02"
+	},
+	{
+		"id": "bal_02",
+		"speaker": "lord_ashford",
+		"text": "Si je peux me permettre... comment trouvez vous la vie à LIEU ETRANGE ,",
+		"emotion": "neutral",
+		"choices": [
+			{
+				"text": "Euh, je... euh...bof ????",
+				"next": "bal_02.1"
+			},
+			{
+				"text": "Merveilleux !!",
+				"next": "bal_02.2"
+			}
+		]
+	}
+]
