@@ -27,6 +27,9 @@ const DialogueLineServiceScript = preload(
 const DialogueChoiceServiceScript = preload(
 	"res://tools/dialogue_editor/services/choice/DialogueChoiceService.gd"
 )
+const DialogueFormServiceScript = preload(
+	"res://tools/dialogue_editor/services/editor/DialogueFormService.gd"
+)
 
 @onready var dialogue_name_input: LineEdit = %DialogueNameInput
 @onready var character_select: OptionButton = %CharacterSelect
@@ -56,6 +59,7 @@ var file_writer: DialogueFileWriterScript = DialogueFileWriterScript.new()
 var file_reader: DialogueFileReaderScript = DialogueFileReaderScript.new()
 var line_service: DialogueLineServiceScript
 var choice_service: DialogueChoiceServiceScript = DialogueChoiceServiceScript.new()
+var form_service: DialogueFormServiceScript
 
 
 func _ready() -> void:
@@ -65,6 +69,16 @@ func _ready() -> void:
 	)
 
 	choice_service = DialogueChoiceServiceScript.new()
+
+	form_service = DialogueFormServiceScript.new(
+		dialogue_name_input,
+		LineEdit.new(), # Replace with actual line_id_input
+		character_select,
+		emotion_select,
+		dialogue_text_input,
+		LineEdit.new(), # Replace with actual next_id_input
+		has_choices_check_box
+	)
 
 	_initialize_characters()
 	_initialize_emotions()
@@ -145,7 +159,7 @@ func _start_new_dialogue() -> void:
 	current_file_label.text = "Aucun fichier ouvert"
 
 	lines_list.clear()
-	_clear_editor_form()
+	form_service.clear_all()
 	_set_status("Nouveau dialogue.")
 
 
@@ -169,7 +183,7 @@ func _on_dialogue_file_selected(file_path: String) -> void:
 	current_file_label.text = file_path
 
 	_refresh_lines_list()
-	_clear_editor_form()
+	form_service.clear_line_form()
 	_set_status("Dialogue chargé : %s" % file_path)
 
 
@@ -205,9 +219,7 @@ func _on_line_selected(index: int) -> void:
 
 	var line: Dictionary = dialogue_lines[index]
 
-	dialogue_text_input.text = str(line.get("text", ""))
-	_select_character(str(line.get("speaker", "")))
-	_select_emotion(str(line.get("emotion", "neutral")))
+	form_service.populate_from_line(line)
 
 	var choices: Array[Dictionary] = line_service.extract_choices(line)
 
@@ -241,19 +253,20 @@ func _update_choices_visibility() -> void:
 
 
 func _on_add_line_button_pressed() -> void:
-	var dialogue_name: String = dialogue_name_input.text.strip_edges()
-	var dialogue_text: String = dialogue_text_input.text.strip_edges()
+	var form_data: Dictionary = form_service.get_form_data()
 
-	var dialogue_name_error: String = validator.validate_dialogue_name(
-		dialogue_name
+	var dialogue_name: String = str(
+		form_service.get_dialogue_name()
 	)
-
-	if not dialogue_name_error.is_empty():
-		_set_status(dialogue_name_error)
-		return
-
-	var speaker_id: String = _get_selected_character_id()
-	var emotion_id: String = _get_selected_emotion_id()
+	var dialogue_text: String = str(
+		form_data.get("text", "")
+	)
+	var speaker_id: String = str(
+		form_service.get_selected_character_id()
+	)
+	var emotion_id: String = str(
+		form_data.get("emotion", "")
+	)
 
 	var line_error: String = validator.validate_line(
 		dialogue_text,
@@ -292,7 +305,7 @@ func _on_add_line_button_pressed() -> void:
 
 	selected_line_index = -1
 	_refresh_lines_list()
-	_clear_editor_form()
+	form_service.clear_line_form()
 
 
 func _resolve_current_line_id(dialogue_name: String) -> String:
@@ -342,17 +355,6 @@ func _build_line(
 		dialogue_text,
 		next_id
 	)
-
-
-
-func _clear_editor_form() -> void:
-	dialogue_text_input.clear()
-	has_choices_check_box.button_pressed = false
-	selected_line_index = -1
-	add_line_button.text = "Ajouter la ligne"
-
-	_clear_choice_rows()
-	_update_choices_visibility()
 
 
 func _clear_choice_rows() -> void:
@@ -523,33 +525,6 @@ func _on_save_button_pressed() -> void:
 	dialogue_name_input.editable = false
 
 	_set_status("Dialogue sauvegardé : " + current_file_path)
-
-
-# ---------------------------------------------------------------------------
-# Sélections
-# ---------------------------------------------------------------------------
-
-func _select_character(character_id: String) -> void:
-	for index: int in range(character_select.item_count):
-		if str(character_select.get_item_metadata(index)) == character_id:
-			character_select.select(index)
-			return
-
-
-func _select_emotion(emotion_id: String) -> void:
-	for index: int in range(emotion_select.item_count):
-		if str(emotion_select.get_item_metadata(index)) == emotion_id:
-			emotion_select.select(index)
-			return
-
-
-func _get_selected_character_id() -> String:
-	return str(character_select.get_selected_metadata())
-
-
-func _get_selected_emotion_id() -> String:
-	return str(emotion_select.get_selected_metadata())
-
 
 # ---------------------------------------------------------------------------
 # Retour utilisateur
