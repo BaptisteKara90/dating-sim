@@ -24,6 +24,9 @@ const CHOICE_ROW_SCENE: PackedScene = preload(
 const DialogueLineServiceScript = preload(
 	"res://tools/dialogue_editor/services/line/DialogueLineService.gd"
 )
+const DialogueChoiceServiceScript = preload(
+	"res://tools/dialogue_editor/services/choice/DialogueChoiceService.gd"
+)
 
 @onready var dialogue_name_input: LineEdit = %DialogueNameInput
 @onready var character_select: OptionButton = %CharacterSelect
@@ -52,18 +55,22 @@ var validator: DialogueValidatorScript = DialogueValidatorScript.new()
 var file_writer: DialogueFileWriterScript = DialogueFileWriterScript.new()
 var file_reader: DialogueFileReaderScript = DialogueFileReaderScript.new()
 var line_service: DialogueLineServiceScript
+var choice_service: DialogueChoiceServiceScript = DialogueChoiceServiceScript.new()
 
 
 func _ready() -> void:
+	line_service = DialogueLineServiceScript.new(
+		id_generator,
+		validator
+	)
+
+	choice_service = DialogueChoiceServiceScript.new()
+
 	_initialize_characters()
 	_initialize_emotions()
 	_configure_file_dialog()
 	_connect_signals()
 	_start_new_dialogue()
-	line_service = DialogueLineServiceScript.new(
-	id_generator,
-	validator
-)
 
 
 # ---------------------------------------------------------------------------
@@ -408,11 +415,11 @@ func _on_choice_create_target_requested(
 		)
 		return
 
-	var new_line: Dictionary = {
-		"id": new_line_id,
-		"speaker": "narrator",
-		"text": ""
-	}
+	var new_line: Dictionary = (
+		choice_service.create_target_line(
+			new_line_id
+		)
+	)
 
 	dialogue_lines.append(new_line)
 
@@ -471,10 +478,12 @@ func _collect_choices() -> Array[Dictionary]:
 		if choice_text.is_empty() or target_line_id.is_empty():
 			continue
 
-		choices.append({
-			"text": choice_text,
-			"next": target_line_id
-		})
+		choices.append(
+			choice_service.create_choice(
+			choice_text,
+			target_line_id
+			)
+		)
 
 	return choices
 
