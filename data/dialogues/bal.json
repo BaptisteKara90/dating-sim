@@ -9,16 +9,16 @@
 	{
 		"id": "bal_02",
 		"speaker": "lord_ashford",
-		"text": "Si je peux me permettre... comment trouvez vous la vie à LIEU ETRANGE ,",
+		"text": "Si je peux me permettre... comment trouvez vous la vie à Paris",
 		"emotion": "neutral",
 		"choices": [
 			{
 				"text": "Euh, je... euh...bof ????",
-				"next": "bal_02.1"
+				"next": "bal_02"
 			},
 			{
 				"text": "Merveilleux !!",
-				"next": "bal_02.2"
+				"next": "bal_02"
 			}
 		]
 	}

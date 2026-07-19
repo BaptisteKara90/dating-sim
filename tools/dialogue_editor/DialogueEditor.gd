@@ -400,6 +400,8 @@ func _add_choice_row(
 
 	row.remove_requested.connect(_on_choice_remove_requested)
 	choices_container.add_child(row)
+	
+	row.create_target_requested.connect(_on_choice_create_target_requested)
 
 	row.configure(
 		_get_existing_line_ids(),
@@ -407,6 +409,99 @@ func _add_choice_row(
 		target_line_id
 	)
 
+func _on_choice_create_target_requested(
+	row: ChoiceRowScript
+) -> void:
+	var dialogue_name: String = (
+		dialogue_name_input.text.strip_edges()
+	)
+
+	if dialogue_name.is_empty():
+		_set_status(
+			"Donne d'abord un nom au dialogue."
+		)
+		return
+
+	var new_line_id: String = _generate_new_line_id(
+		dialogue_name
+	)
+
+	if new_line_id.is_empty():
+		_set_status(
+			"Impossible de générer la nouvelle ligne."
+		)
+		return
+
+	var new_line: Dictionary = {
+		"id": new_line_id,
+		"speaker": "narrator",
+		"text": ""
+	}
+
+	dialogue_lines.append(new_line)
+
+	_refresh_lines_list()
+	_refresh_all_choice_targets()
+
+	row.select_target(new_line_id)
+
+	var new_line_index: int = dialogue_lines.size() - 1
+	lines_list.select(new_line_index)
+
+	_on_line_selected(new_line_index)
+
+	_set_status(
+		"Nouvelle ligne créée : " + new_line_id
+	)
+
+func _generate_new_line_id(
+	dialogue_name: String
+) -> String:
+	var line_number: int = dialogue_lines.size() + 1
+
+	var generated_id: String = (
+		id_generator.generate_line_id(
+			dialogue_name,
+			line_number
+		)
+	)
+
+	while validator.line_id_exists(
+		dialogue_lines,
+		generated_id
+	):
+		line_number += 1
+
+		generated_id = (
+			id_generator.generate_line_id(
+				dialogue_name,
+				line_number
+			)
+		)
+
+	return generated_id
+
+func _refresh_all_choice_targets() -> void:
+	var line_ids: Array[String] = (
+		_get_existing_line_ids()
+	)
+
+	for child: Node in choices_container.get_children():
+		if child is not ChoiceRowScript:
+			continue
+
+		var row: ChoiceRowScript = (
+			child as ChoiceRowScript
+		)
+
+		var current_target: String = (
+			row.get_target_line_id()
+		)
+
+		row.set_available_targets(
+			line_ids,
+			current_target
+		)
 
 func _on_choice_remove_requested(row: HBoxContainer) -> void:
 	row.queue_free()
