@@ -1,19 +1,19 @@
 extends Control
 
 const DialogueIdGeneratorScript = preload(
-	"res://tools/dialogue_editor/services/DialogueIdGenerator.gd"
+	"res://tools/dialogue_editor/services/line/DialogueIdGenerator.gd"
 )
 const DialogueLineBuilderScript = preload(
-	"res://tools/dialogue_editor/services/DialogueLineBuilder.gd"
+	"res://tools/dialogue_editor/services/line/DialogueLineBuilder.gd"
 )
 const DialogueValidatorScript = preload(
-	"res://tools/dialogue_editor/services/DialogueValidator.gd"
+	"res://tools/dialogue_editor/services/validation/DialogueValidator.gd"
 )
 const DialogueFileWriterScript = preload(
-	"res://tools/dialogue_editor/services/DialogueFileWriter.gd"
+	"res://tools/dialogue_editor/services/file/DialogueFileWriter.gd"
 )
 const DialogueFileReaderScript = preload(
-	"res://tools/dialogue_editor/services/DialogueFileReader.gd"
+	"res://tools/dialogue_editor/services/file/DialogueFileReader.gd"
 )
 const ChoiceRowScript = preload(
 	"res://tools/dialogue_editor/components/ChoiceRow.gd"

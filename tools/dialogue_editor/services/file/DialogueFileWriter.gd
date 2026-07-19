@@ -8,7 +8,7 @@ func save(
 	dialogue_lines: Array[Dictionary]
 ) -> String:
 	var id_generator: RefCounted = preload(
-		"res://tools/dialogue_editor/services/DialogueIdGenerator.gd"
+		"res://tools/dialogue_editor/services/line/DialogueIdGenerator.gd"
 	).new()
 
 	var dialogue_slug: String = id_generator.slugify(dialogue_name)
@@ -55,7 +55,7 @@ func save(
 
 func get_file_path(dialogue_name: String) -> String:
 	var id_generator: RefCounted = preload(
-		"res://tools/dialogue_editor/services/DialogueIdGenerator.gd"
+		"res://tools/dialogue_editor/services/line/DialogueIdGenerator.gd"
 	).new()
 
 	var dialogue_slug: String = id_generator.slugify(dialogue_name)
