@@ -16,6 +16,9 @@ layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "Choix du texte"
 
+[node name="TargetLineSelect" type="OptionButton" parent="." unique_id=92464258]
+layout_mode = 2
+
 [node name="RemoveButton" type="Button" parent="." unique_id=1757870551]
 unique_name_in_owner = true
 layout_mode = 2

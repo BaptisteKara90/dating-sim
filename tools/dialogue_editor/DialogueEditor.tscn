@@ -30,49 +30,86 @@ layout_mode = 2
 layout_mode = 2
 text = "Editeur de dialgues"
 
-[node name="DialogueNameInput" type="LineEdit" parent="MarginContainer/VBoxContainer" unique_id=1264175429]
+[node name="Toolbar" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=1383047100]
+layout_mode = 2
+
+[node name="OpenButton" type="Button" parent="MarginContainer/VBoxContainer/Toolbar" unique_id=723023326]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Ouvrir"
+
+[node name="NewButton" type="Button" parent="MarginContainer/VBoxContainer/Toolbar" unique_id=753555704]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Nouveau"
+
+[node name="CurrentFileLabel" type="Label" parent="MarginContainer/VBoxContainer/Toolbar" unique_id=1064133933]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Aucun Fichier Ouvert"
+
+[node name="MainContent" type="HSplitContainer" parent="MarginContainer/VBoxContainer" unique_id=898603928]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="LinesList" type="ItemList" parent="MarginContainer/VBoxContainer/MainContent" unique_id=2079381288]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 2
+
+[node name="FormContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/MainContent" unique_id=866512886]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DialogueNameInput" type="LineEdit" parent="MarginContainer/VBoxContainer/MainContent/FormContainer" unique_id=1264175429]
 unique_name_in_owner = true
 layout_mode = 2
 placeholder_text = "Nom du dialogue (ex. Intro)"
 
-[node name="CharacterSelect" type="OptionButton" parent="MarginContainer/VBoxContainer" unique_id=1157132814]
+[node name="CharacterSelect" type="OptionButton" parent="MarginContainer/VBoxContainer/MainContent/FormContainer" unique_id=1157132814]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="EmotionSelect" type="OptionButton" parent="MarginContainer/VBoxContainer" unique_id=808111878]
+[node name="EmotionSelect" type="OptionButton" parent="MarginContainer/VBoxContainer/MainContent/FormContainer" unique_id=808111878]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="DialogueTextInput" type="TextEdit" parent="MarginContainer/VBoxContainer" unique_id=379640930]
+[node name="DialogueTextInput" type="TextEdit" parent="MarginContainer/VBoxContainer/MainContent/FormContainer" unique_id=379640930]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 220)
 layout_mode = 2
 size_flags_vertical = 3
 placeholder_text = "Texte du dialogue"
 
-[node name="HasChoicesCheckBox" type="CheckBox" parent="MarginContainer/VBoxContainer" unique_id=1088302312]
+[node name="HasChoicesCheckBox" type="CheckBox" parent="MarginContainer/VBoxContainer/MainContent/FormContainer" unique_id=1088302312]
 unique_name_in_owner = true
 layout_mode = 2
 text = " Cette ligne contient des choix"
 
-[node name="ChoicesContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=70244126]
+[node name="ChoicesContainer" type="VBoxContainer" parent="MarginContainer/VBoxContainer/MainContent/FormContainer" unique_id=70244126]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="AddChoiceButton" type="Button" parent="MarginContainer/VBoxContainer" unique_id=347720848]
+[node name="AddChoiceButton" type="Button" parent="MarginContainer/VBoxContainer/MainContent/FormContainer" unique_id=347720848]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Ajouter un choix"
 
-[node name="AddLineButton" type="Button" parent="MarginContainer/VBoxContainer" unique_id=848436780]
+[node name="AddLineButton" type="Button" parent="MarginContainer/VBoxContainer/MainContent/FormContainer" unique_id=848436780]
 unique_name_in_owner = true
 layout_mode = 2
 text = " Ajouter la ligne"
 
-[node name="SaveButton" type="Button" parent="MarginContainer/VBoxContainer" unique_id=1316946715]
+[node name="SaveButton" type="Button" parent="MarginContainer/VBoxContainer/MainContent/FormContainer" unique_id=1316946715]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Sauvegarder le dialogue"
 
-[node name="StatusLabel" type="Label" parent="MarginContainer/VBoxContainer" unique_id=380157824]
+[node name="StatusLabel" type="Label" parent="MarginContainer/VBoxContainer/MainContent/FormContainer" unique_id=380157824]
 unique_name_in_owner = true
 layout_mode = 2
+
+[node name="OpenFileDialog" type="FileDialog" parent="MarginContainer" unique_id=751656510]
+unique_name_in_owner = true
+oversampling_override = 1.0
+initial_position = 2
