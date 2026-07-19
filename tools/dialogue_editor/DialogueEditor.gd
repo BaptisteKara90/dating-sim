@@ -21,6 +21,9 @@ const ChoiceRowScript = preload(
 const CHOICE_ROW_SCENE: PackedScene = preload(
 	"res://tools/dialogue_editor/components/ChoiceRow.tscn"
 )
+const DialogueLineServiceScript = preload(
+	"res://tools/dialogue_editor/services/line/DialogueLineService.gd"
+)
 
 @onready var dialogue_name_input: LineEdit = %DialogueNameInput
 @onready var character_select: OptionButton = %CharacterSelect
@@ -48,6 +51,7 @@ var line_builder: DialogueLineBuilderScript = DialogueLineBuilderScript.new()
 var validator: DialogueValidatorScript = DialogueValidatorScript.new()
 var file_writer: DialogueFileWriterScript = DialogueFileWriterScript.new()
 var file_reader: DialogueFileReaderScript = DialogueFileReaderScript.new()
+var line_service: DialogueLineServiceScript
 
 
 func _ready() -> void:
@@ -56,6 +60,10 @@ func _ready() -> void:
 	_configure_file_dialog()
 	_connect_signals()
 	_start_new_dialogue()
+	line_service = DialogueLineServiceScript.new(
+	id_generator,
+	validator
+)
 
 
 # ---------------------------------------------------------------------------
@@ -194,7 +202,7 @@ func _on_line_selected(index: int) -> void:
 	_select_character(str(line.get("speaker", "")))
 	_select_emotion(str(line.get("emotion", "neutral")))
 
-	var choices: Array[Dictionary] = _extract_choices(line)
+	var choices: Array[Dictionary] = line_service.extract_choices(line)
 
 	has_choices_check_box.button_pressed = not choices.is_empty()
 	_clear_choice_rows()
@@ -208,20 +216,6 @@ func _on_line_selected(index: int) -> void:
 	_update_choices_visibility()
 	add_line_button.text = "Modifier la ligne"
 
-
-func _extract_choices(line: Dictionary) -> Array[Dictionary]:
-	var choices: Array[Dictionary] = []
-
-	if not line.has("choices"):
-		return choices
-
-	var raw_choices: Array = line.get("choices", [])
-
-	for raw_choice: Variant in raw_choices:
-		if raw_choice is Dictionary:
-			choices.append(raw_choice as Dictionary)
-
-	return choices
 
 
 # ---------------------------------------------------------------------------
@@ -300,20 +294,10 @@ func _resolve_current_line_id(dialogue_name: String) -> String:
 			dialogue_lines[selected_line_index].get("id", "")
 		)
 
-	var line_number: int = dialogue_lines.size() + 1
-	var generated_id: String = id_generator.generate_line_id(
+	return line_service.generate_new_line_id(
 		dialogue_name,
-		line_number
+		dialogue_lines
 	)
-
-	while validator.line_id_exists(dialogue_lines, generated_id):
-		line_number += 1
-		generated_id = id_generator.generate_line_id(
-			dialogue_name,
-			line_number
-		)
-
-	return generated_id
 
 
 func _build_line(
@@ -338,7 +322,11 @@ func _build_line(
 			choices
 		)
 
-	var next_id: String = _get_linear_next_id()
+	var next_id: String = line_service.get_linear_next_id(
+		dialogue_name_input.text.strip_edges(),
+		dialogue_lines,
+		selected_line_index
+	)
 
 	return line_builder.build_linear_line(
 		line_id,
@@ -348,19 +336,6 @@ func _build_line(
 		next_id
 	)
 
-
-func _get_linear_next_id() -> String:
-	if selected_line_index >= 0:
-		var existing_line: Dictionary = dialogue_lines[selected_line_index]
-		return str(existing_line.get("next", ""))
-
-	var dialogue_name: String = dialogue_name_input.text.strip_edges()
-	var line_number: int = dialogue_lines.size() + 2
-
-	return id_generator.generate_line_id(
-		dialogue_name,
-		line_number
-	)
 
 
 func _clear_editor_form() -> void:
@@ -404,7 +379,7 @@ func _add_choice_row(
 	row.create_target_requested.connect(_on_choice_create_target_requested)
 
 	row.configure(
-		_get_existing_line_ids(),
+		line_service.get_existing_line_ids(dialogue_lines),
 		choice_text,
 		target_line_id
 	)
@@ -422,8 +397,9 @@ func _on_choice_create_target_requested(
 		)
 		return
 
-	var new_line_id: String = _generate_new_line_id(
-		dialogue_name
+	var new_line_id: String = line_service.generate_new_line_id(
+		dialogue_name,
+		dialogue_lines
 	)
 
 	if new_line_id.is_empty():
@@ -454,36 +430,10 @@ func _on_choice_create_target_requested(
 		"Nouvelle ligne créée : " + new_line_id
 	)
 
-func _generate_new_line_id(
-	dialogue_name: String
-) -> String:
-	var line_number: int = dialogue_lines.size() + 1
-
-	var generated_id: String = (
-		id_generator.generate_line_id(
-			dialogue_name,
-			line_number
-		)
-	)
-
-	while validator.line_id_exists(
-		dialogue_lines,
-		generated_id
-	):
-		line_number += 1
-
-		generated_id = (
-			id_generator.generate_line_id(
-				dialogue_name,
-				line_number
-			)
-		)
-
-	return generated_id
 
 func _refresh_all_choice_targets() -> void:
 	var line_ids: Array[String] = (
-		_get_existing_line_ids()
+		line_service.get_existing_line_ids(dialogue_lines)
 	)
 
 	for child: Node in choices_container.get_children():
@@ -528,17 +478,6 @@ func _collect_choices() -> Array[Dictionary]:
 
 	return choices
 
-
-func _get_existing_line_ids() -> Array[String]:
-	var line_ids: Array[String] = []
-
-	for line: Dictionary in dialogue_lines:
-		var line_id: String = str(line.get("id", ""))
-
-		if not line_id.is_empty():
-			line_ids.append(line_id)
-
-	return line_ids
 
 
 # ---------------------------------------------------------------------------
