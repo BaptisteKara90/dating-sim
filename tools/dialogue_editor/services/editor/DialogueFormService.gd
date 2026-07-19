@@ -13,19 +13,15 @@ var has_choices_check_box: CheckBox
 
 func _init(
 	new_dialogue_name_input: LineEdit,
-	new_line_id_input: LineEdit,
 	new_character_select: OptionButton,
 	new_emotion_select: OptionButton,
 	new_dialogue_text_input: TextEdit,
-	new_next_id_input: LineEdit,
 	new_has_choices_check_box: CheckBox
 ) -> void:
 	dialogue_name_input = new_dialogue_name_input
-	line_id_input = new_line_id_input
 	character_select = new_character_select
 	emotion_select = new_emotion_select
 	dialogue_text_input = new_dialogue_text_input
-	next_id_input = new_next_id_input
 	has_choices_check_box = new_has_choices_check_box
 
 
@@ -33,16 +29,9 @@ func get_dialogue_name() -> String:
 	return dialogue_name_input.text.strip_edges()
 
 
-func get_line_id() -> String:
-	return line_id_input.text.strip_edges()
-
-
 func get_dialogue_text() -> String:
 	return dialogue_text_input.text.strip_edges()
 
-
-func get_next_id() -> String:
-	return next_id_input.text.strip_edges()
 
 
 func has_choices() -> bool:
@@ -60,19 +49,15 @@ func get_selected_emotion_id() -> String:
 func get_form_data() -> Dictionary:
 	return {
 		"dialogue_name": get_dialogue_name(),
-		"id": get_line_id(),
 		"speaker": get_selected_character_id(),
 		"emotion": get_selected_emotion_id(),
 		"text": get_dialogue_text(),
-		"next": get_next_id(),
 		"has_choices": has_choices()
 	}
 
 
 func populate_from_line(line: Dictionary) -> void:
-	line_id_input.text = str(line.get("id", ""))
 	dialogue_text_input.text = str(line.get("text", ""))
-	next_id_input.text = str(line.get("next", ""))
 
 	select_character(str(line.get("speaker", "")))
 	select_emotion(str(line.get("emotion", "")))
@@ -80,9 +65,7 @@ func populate_from_line(line: Dictionary) -> void:
 
 
 func clear_line_form() -> void:
-	line_id_input.clear()
 	dialogue_text_input.clear()
-	next_id_input.clear()
 	has_choices_check_box.button_pressed = false
 
 	_select_first_item(character_select)

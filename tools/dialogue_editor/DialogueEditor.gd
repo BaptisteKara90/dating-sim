@@ -30,6 +30,9 @@ const DialogueChoiceServiceScript = preload(
 const DialogueFormServiceScript = preload(
 	"res://tools/dialogue_editor/services/editor/DialogueFormService.gd"
 )
+const DialogueChoicesControllerScript = preload(
+	"res://tools/dialogue_editor/controllers/DialogueChoicesController.gd"
+)
 
 @onready var dialogue_name_input: LineEdit = %DialogueNameInput
 @onready var character_select: OptionButton = %CharacterSelect
@@ -58,8 +61,9 @@ var validator: DialogueValidatorScript = DialogueValidatorScript.new()
 var file_writer: DialogueFileWriterScript = DialogueFileWriterScript.new()
 var file_reader: DialogueFileReaderScript = DialogueFileReaderScript.new()
 var line_service: DialogueLineServiceScript
-var choice_service: DialogueChoiceServiceScript = DialogueChoiceServiceScript.new()
+var choice_service: DialogueChoiceServiceScript
 var form_service: DialogueFormServiceScript
+var choices_controller: DialogueChoicesControllerScript
 
 
 func _ready() -> void:
@@ -70,13 +74,25 @@ func _ready() -> void:
 
 	choice_service = DialogueChoiceServiceScript.new()
 
+	choices_controller = DialogueChoicesControllerScript.new(
+		choices_container,
+		line_service,
+		choice_service
+	)
+
+	choices_controller.create_target_requested.connect(
+		_on_choice_create_target_requested
+	)
+
+	choices_controller.error_occurred.connect(
+		_set_status
+	)
+
 	form_service = DialogueFormServiceScript.new(
 		dialogue_name_input,
-		LineEdit.new(), # Replace with actual line_id_input
 		character_select,
 		emotion_select,
 		dialogue_text_input,
-		LineEdit.new(), # Replace with actual next_id_input
 		has_choices_check_box
 	)
 
@@ -224,13 +240,12 @@ func _on_line_selected(index: int) -> void:
 	var choices: Array[Dictionary] = line_service.extract_choices(line)
 
 	has_choices_check_box.button_pressed = not choices.is_empty()
-	_clear_choice_rows()
+	choices_controller.clear()
 
-	for choice: Dictionary in choices:
-		_add_choice_row(
-			str(choice.get("text", "")),
-			str(choice.get("next", ""))
-		)
+	choices_controller.populate(
+		choices,
+		dialogue_lines
+	)
 
 	_update_choices_visibility()
 	add_line_button.text = "Modifier la ligne"
@@ -327,7 +342,9 @@ func _build_line(
 	dialogue_text: String
 ) -> Dictionary:
 	if has_choices_check_box.button_pressed:
-		var choices: Array[Dictionary] = _collect_choices()
+		var choices: Array[Dictionary] = (
+			choices_controller.collect()
+		)
 		var choices_error: String = validator.validate_choices(choices)
 
 		if not choices_error.is_empty():
@@ -356,42 +373,13 @@ func _build_line(
 		next_id
 	)
 
-
-func _clear_choice_rows() -> void:
-	for child: Node in choices_container.get_children():
-		child.queue_free()
-
-
 # ---------------------------------------------------------------------------
 # Choix
 # ---------------------------------------------------------------------------
 
 func _on_add_choice_pressed() -> void:
-	_add_choice_row()
+	choices_controller.add_row(dialogue_lines)
 
-
-func _add_choice_row(
-	choice_text: String = "",
-	target_line_id: String = ""
-) -> void:
-	var row: ChoiceRowScript = (
-		CHOICE_ROW_SCENE.instantiate() as ChoiceRowScript
-	)
-
-	if row == null:
-		_set_status("Impossible de créer le choix.")
-		return
-
-	row.remove_requested.connect(_on_choice_remove_requested)
-	choices_container.add_child(row)
-	
-	row.create_target_requested.connect(_on_choice_create_target_requested)
-
-	row.configure(
-		line_service.get_existing_line_ids(dialogue_lines),
-		choice_text,
-		target_line_id
-	)
 
 func _on_choice_create_target_requested(
 	row: ChoiceRowScript
@@ -426,9 +414,14 @@ func _on_choice_create_target_requested(
 	dialogue_lines.append(new_line)
 
 	_refresh_lines_list()
-	_refresh_all_choice_targets()
+	choices_controller.refresh_targets(
+		dialogue_lines
+	)
 
-	row.select_target(new_line_id)
+	choices_controller.select_target(
+		row,
+		new_line_id
+	)
 
 	var new_line_index: int = dialogue_lines.size() - 1
 	lines_list.select(new_line_index)
@@ -438,58 +431,6 @@ func _on_choice_create_target_requested(
 	_set_status(
 		"Nouvelle ligne créée : " + new_line_id
 	)
-
-
-func _refresh_all_choice_targets() -> void:
-	var line_ids: Array[String] = (
-		line_service.get_existing_line_ids(dialogue_lines)
-	)
-
-	for child: Node in choices_container.get_children():
-		if child is not ChoiceRowScript:
-			continue
-
-		var row: ChoiceRowScript = (
-			child as ChoiceRowScript
-		)
-
-		var current_target: String = (
-			row.get_target_line_id()
-		)
-
-		row.set_available_targets(
-			line_ids,
-			current_target
-		)
-
-func _on_choice_remove_requested(row: HBoxContainer) -> void:
-	row.queue_free()
-
-
-func _collect_choices() -> Array[Dictionary]:
-	var choices: Array[Dictionary] = []
-
-	for child: Node in choices_container.get_children():
-		if child is not ChoiceRowScript:
-			continue
-
-		var row: ChoiceRowScript = child as ChoiceRowScript
-		var choice_text: String = row.get_choice_text()
-		var target_line_id: String = row.get_target_line_id()
-
-		if choice_text.is_empty() or target_line_id.is_empty():
-			continue
-
-		choices.append(
-			choice_service.create_choice(
-			choice_text,
-			target_line_id
-			)
-		)
-
-	return choices
-
-
 
 # ---------------------------------------------------------------------------
 # Sauvegarde
