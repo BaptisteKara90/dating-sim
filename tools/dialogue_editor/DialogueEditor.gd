@@ -33,6 +33,9 @@ const DialogueFormServiceScript = preload(
 const DialogueChoicesControllerScript = preload(
 	"res://tools/dialogue_editor/controllers/DialogueChoicesController.gd"
 )
+const DialogueFileDeleteScript = preload(
+	"res://tools/dialogue_editor/services/file/DialogueFileDelete.gd"
+)
 
 @onready var dialogue_name_input: LineEdit = %DialogueNameInput
 @onready var character_select: OptionButton = %CharacterSelect
@@ -50,6 +53,8 @@ const DialogueChoicesControllerScript = preload(
 @onready var current_file_label: Label = %CurrentFileLabel
 @onready var open_file_dialog: FileDialog = %OpenFileDialog
 @onready var lines_list: ItemList = %LinesList
+@onready var delete_button: Button = %DeleteButton
+@onready var delete_confirmation_dialog: ConfirmationDialog = %DeleteConfirmationDialog
 
 var dialogue_lines: Array[Dictionary] = []
 var current_file_path: String = ""
@@ -64,6 +69,7 @@ var line_service: DialogueLineServiceScript
 var choice_service: DialogueChoiceServiceScript
 var form_service: DialogueFormServiceScript
 var choices_controller: DialogueChoicesControllerScript
+var file_delete_service: DialogueFileDeleteScript = DialogueFileDeleteScript.new()
 
 
 func _ready() -> void:
@@ -117,6 +123,8 @@ func _connect_signals() -> void:
 	new_button.pressed.connect(_on_new_button_pressed)
 	open_file_dialog.file_selected.connect(_on_dialogue_file_selected)
 	lines_list.item_selected.connect(_on_line_selected)
+	delete_button.pressed.connect(_on_delete_button_pressed)
+	delete_confirmation_dialog.confirmed.connect(_on_delete_dialog_confirmed)
 
 
 func _configure_file_dialog() -> void:
@@ -430,6 +438,46 @@ func _on_choice_create_target_requested(
 
 	_set_status(
 		"Nouvelle ligne créée : " + new_line_id
+	)
+
+# ---------------------------------------------------------------------------
+# Suppression de fichier
+# ---------------------------------------------------------------------------
+
+func _on_delete_button_pressed() -> void:
+	if current_file_path.is_empty():
+		_set_status("Aucun dialogue ouvert à supprimer.")
+		return
+
+	delete_confirmation_dialog.dialog_text = (
+		"Supprimer définitivement ce dialogue ?\n"
+		+ current_file_path.get_file()
+	)
+
+	delete_confirmation_dialog.popup_centered()
+
+func _on_delete_dialog_confirmed() -> void:
+	if current_file_path.is_empty():
+		_set_status("Aucun dialogue à supprimer.")
+		return
+
+	var deleted_file_path: String = current_file_path
+
+	var is_deleted: bool = file_delete_service.delete(
+		deleted_file_path
+	)
+
+	if not is_deleted:
+		_set_status(
+			"Impossible de supprimer le dialogue."
+		)
+		return
+
+	_start_new_dialogue()
+
+	_set_status(
+		"Dialogue supprimé : "
+		+ deleted_file_path.get_file()
 	)
 
 # ---------------------------------------------------------------------------

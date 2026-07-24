@@ -105,6 +105,11 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "Sauvegarder le dialogue"
 
+[node name="DeleteButton" type="Button" parent="MarginContainer/VBoxContainer/MainContent/FormContainer" unique_id=687625528]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Supprimer le dialogue"
+
 [node name="StatusLabel" type="Label" parent="MarginContainer/VBoxContainer/MainContent/FormContainer" unique_id=380157824]
 unique_name_in_owner = true
 layout_mode = 2
@@ -113,3 +118,12 @@ layout_mode = 2
 unique_name_in_owner = true
 oversampling_override = 1.0
 initial_position = 2
+
+[node name="DeleteConfirmationDialog" type="ConfirmationDialog" parent="MarginContainer" unique_id=1219313558]
+unique_name_in_owner = true
+oversampling_override = 1.0
+initial_position = 1
+size = Vector2i(331, 100)
+ok_button_text = "Oui"
+dialog_text = "Vous êtes sûr de supprimer ce dialogue ?"
+cancel_button_text = "Non"
